@@ -1,5 +1,5 @@
 package vm;
-$VERSION = 1.0;
+$VERSION = '1.0.1';
 
 bootstrap xsub;
 
@@ -256,16 +256,14 @@ sub mmap($;$$$$) {
   my $fd = do {
     if (ref($fp) || ref(\$fp) eq 'GLOB') {
       fileno($fp)
-    } elsif ($p ne $p+0) {
+    } elsif ($fp eq '0' or $fp > 0) {
+      $fp
+    } else {
       my $fn = $fp;
       undef $fp;
       my $mode = ($prot & &PROT_WRITE) ? '+<' : '<';
-      open $fp, $mode,  $fn or return undef;
+      open $fp, $mode, $fn or warn("$0: $fn: $!\n"), return undef;
       fileno($fp)
-    } else {
-      defined $off or return undef;
-      defined $len or return undef;
-      $fp
     }
   }; defined $fd or return undef;
 

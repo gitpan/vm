@@ -9,6 +9,8 @@ sub ok {
   $ok or die("not ok $num\n");
 } 
 
+print STDOUT "1..6\n";
+
 my $filename = "/tmp/vm.test.$$";
 open(my $fp, "+> $filename");
 ok 1, $fp && -e $filename;
@@ -28,6 +30,11 @@ local $/ = \10;
 ok 4, <$fp> eq 'goodbyello';
 
 close($fp);
+my $mem_ref = vm::mmap($filename, 0, 4096);
+local *mem = $mem_ref;
+ok 5, substr($mem, 0, 10) eq 'goodbyello';
+
+undef $mem_ref;
 unlink($filename);
-ok 5, !-e $filename;
+ok 6, !-e $filename;
 exit 0;
